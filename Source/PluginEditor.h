@@ -36,16 +36,20 @@ public:
 private:
     void timerCallback() override;
     void loadUrl (const juce::String& url);
+    void setChromeVisible (bool shouldBeVisible);
 
     void handleWebAudioChunk (const juce::var& payload);
     void handleWebMidiOut (const juce::var& payload);
 
     DawBridgeAudioProcessor& processor;
 
+    bool chromeVisible = true;
+
     juce::Label urlBarLabel { {}, "Page:" };
     juce::TextEditor urlBar;
     juce::TextButton goButton { "Go" };
     juce::TextButton homeButton { "Home" };
+    juce::TextButton chromeToggleButton { "Maximize" };
     juce::Label statusLabel;
 
     BridgedWebView webView

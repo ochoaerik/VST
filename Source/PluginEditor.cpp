@@ -38,6 +38,11 @@ DawBridgeAudioProcessorEditor::DawBridgeAudioProcessorEditor (DawBridgeAudioProc
 
     addAndMakeVisible (webView);
 
+    // Added after webView so it always renders on top, including when the
+    // rest of the chrome is hidden and the web view covers the whole window.
+    addAndMakeVisible (chromeToggleButton);
+    chromeToggleButton.onClick = [this] { setChromeVisible (! chromeVisible); };
+
     const auto savedUrl = processor.getSavedUrl();
     loadUrl (savedUrl.isNotEmpty() ? savedUrl : defaultAppUrl);
 
@@ -56,8 +61,25 @@ DawBridgeAudioProcessorEditor::~DawBridgeAudioProcessorEditor()
 //==============================================================================
 void DawBridgeAudioProcessorEditor::resized()
 {
-    auto bounds = getLocalBounds().reduced (8);
-    auto topRow = bounds.removeFromTop (28);
+    auto bounds = getLocalBounds();
+
+    // WebBrowserComponent is backed by a native windowed control on every
+    // platform (WebKitGTK/WKWebView/WebView2), which always paints above
+    // JUCE-drawn siblings regardless of child z-order. So the toggle button
+    // can never be allowed to overlap webView's bounds -- it wouldn't be
+    // clickable (or visible) if it did. This slim strip is reserved for it
+    // whether or not the rest of the chrome is showing.
+    auto toggleStrip = bounds.removeFromTop (22);
+    chromeToggleButton.setBounds (toggleStrip.removeFromRight (90).reduced (2, 1));
+
+    if (! chromeVisible)
+    {
+        webView.setBounds (bounds);
+        return;
+    }
+
+    auto contentBounds = bounds.reduced (8, 4);
+    auto topRow = contentBounds.removeFromTop (28);
 
     urlBarLabel.setBounds (topRow.removeFromLeft (40));
     goButton.setBounds (topRow.removeFromRight (60));
@@ -66,11 +88,27 @@ void DawBridgeAudioProcessorEditor::resized()
     topRow.removeFromRight (4);
     urlBar.setBounds (topRow);
 
-    bounds.removeFromTop (4);
-    statusLabel.setBounds (bounds.removeFromBottom (18));
-    bounds.removeFromBottom (4);
+    contentBounds.removeFromTop (4);
+    statusLabel.setBounds (contentBounds.removeFromBottom (18));
+    contentBounds.removeFromBottom (4);
 
-    webView.setBounds (bounds);
+    webView.setBounds (contentBounds);
+}
+
+//==============================================================================
+void DawBridgeAudioProcessorEditor::setChromeVisible (bool shouldBeVisible)
+{
+    chromeVisible = shouldBeVisible;
+
+    urlBarLabel.setVisible (chromeVisible);
+    urlBar.setVisible (chromeVisible);
+    goButton.setVisible (chromeVisible);
+    homeButton.setVisible (chromeVisible);
+    statusLabel.setVisible (chromeVisible);
+
+    chromeToggleButton.setButtonText (chromeVisible ? "Maximize" : "Restore");
+
+    resized();
 }
 
 //==============================================================================
