@@ -1,4 +1,4 @@
-// WebTap bridge script.
+// DawBridge bridge script.
 //
 // Injected into every page the embedded browser navigates to (see
 // WebBrowserComponent::Options::withUserScript in PluginEditor.h). Runs
@@ -13,15 +13,15 @@
 //      input/output, so pages built against navigator.requestMIDIAccess work
 //      unmodified.
 //   3. Expose host transport (tempo, playhead, play/record state) via
-//      window.WebTap.getTransport() and a "webtaptransport" window event.
+//      window.DawBridge.getTransport() and a "dawbridgetransport" window event.
 (function () {
   "use strict";
 
-  if (window.__webTapBridgeInstalled) return;
-  window.__webTapBridgeInstalled = true;
+  if (window.__dawBridgeInstalled) return;
+  window.__dawBridgeInstalled = true;
 
   if (!window.__JUCE__ || !window.__JUCE__.backend) {
-    // Not running inside WebTap's native integration (e.g. previewed in a
+    // Not running inside DawBridge's native integration (e.g. previewed in a
     // normal browser tab) - nothing to bridge.
     return;
   }
@@ -36,7 +36,7 @@
   // posts them to the main thread in larger chunks so we're not paying
   // native-bridge overhead every 128-sample render quantum.
   const CAPTURE_WORKLET_SOURCE = `
-    class WebTapCaptureProcessor extends AudioWorkletProcessor {
+    class DawBridgeCaptureProcessor extends AudioWorkletProcessor {
       constructor (options) {
         super();
         const opts = (options && options.processorOptions) || {};
@@ -82,7 +82,7 @@
         this.writeIndex = 0;
       }
     }
-    registerProcessor("webtap-capture-processor", WebTapCaptureProcessor);
+    registerProcessor("dawbridge-capture-processor", DawBridgeCaptureProcessor);
   `;
 
   const captureStates = new WeakMap();
@@ -123,7 +123,7 @@
       context.audioWorklet
         .addModule(url)
         .then(() => {
-          const node = new AudioWorkletNode(context, "webtap-capture-processor", {
+          const node = new AudioWorkletNode(context, "dawbridge-capture-processor", {
             numberOfInputs: 1,
             numberOfOutputs: 0,
             channelCount: 2,
@@ -136,10 +136,10 @@
           URL.revokeObjectURL(url);
         })
         .catch((err) => {
-          console.error("[WebTap] failed to start audio capture:", err);
+          console.error("[DawBridge] failed to start audio capture:", err);
         });
     } catch (err) {
-      console.error("[WebTap] audio capture unavailable:", err);
+      console.error("[DawBridge] audio capture unavailable:", err);
     }
 
     return stub;
@@ -158,12 +158,12 @@
   // Web MIDI shim
   //========================================================================
 
-  class WebTapMidiPort extends EventTarget {
+  class DawBridgeMidiPort extends EventTarget {
     constructor(id, name, type) {
       super();
       this.id = id;
       this.name = name;
-      this.manufacturer = "WebTap";
+      this.manufacturer = "DawBridge";
       this.type = type;
       this.version = "1.0";
       this.state = "connected";
@@ -189,15 +189,15 @@
     }
   }
 
-  class WebTapMidiOutput extends WebTapMidiPort {
+  class DawBridgeMidiOutput extends DawBridgeMidiPort {
     send(data) {
       backend.emitEvent("webMidiOut", { bytes: Array.from(data) });
     }
     clear() {}
   }
 
-  const midiInput = new WebTapMidiPort("webtap-host-in", "WebTap Host", "input");
-  const midiOutput = new WebTapMidiOutput("webtap-host-out", "WebTap Host", "output");
+  const midiInput = new DawBridgeMidiPort("dawbridge-host-in", "DawBridge Host", "input");
+  const midiOutput = new DawBridgeMidiOutput("dawbridge-host-out", "DawBridge Host", "output");
 
   const fakeMidiAccess = {
     inputs: new Map([[midiInput.id, midiInput]]),
@@ -223,11 +223,11 @@
   // Host transport
   //========================================================================
 
-  window.WebTap = {
+  window.DawBridge = {
     isHost: true,
     _transport: { bpm: 120, ppqPosition: 0, isPlaying: false, isRecording: false, sampleRate: 44100 },
     getTransport() {
-      return { ...window.WebTap._transport };
+      return { ...window.DawBridge._transport };
     },
     sendMidi(bytes) {
       midiOutput.send(bytes);
@@ -235,9 +235,9 @@
   };
 
   backend.addEventListener("hostTransport", (payload) => {
-    window.WebTap._transport = payload;
-    window.dispatchEvent(new CustomEvent("webtaptransport", { detail: payload }));
+    window.DawBridge._transport = payload;
+    window.dispatchEvent(new CustomEvent("dawbridgetransport", { detail: payload }));
   });
 
-  window.dispatchEvent(new Event("webtapready"));
+  window.dispatchEvent(new Event("dawbridgeready"));
 })();

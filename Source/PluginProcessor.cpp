@@ -1,13 +1,13 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-WebTapAudioProcessor::WebTapAudioProcessor()
+DawBridgeAudioProcessor::DawBridgeAudioProcessor()
     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true))
 {
 }
 
 //==============================================================================
-void WebTapAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void DawBridgeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     juce::ignoreUnused (samplesPerBlock);
 
@@ -17,18 +17,18 @@ void WebTapAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock
     webAudioFifo.reset (channels, (int) sampleRate); // ~1 second of headroom
 }
 
-void WebTapAudioProcessor::releaseResources()
+void DawBridgeAudioProcessor::releaseResources()
 {
 }
 
-bool WebTapAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool DawBridgeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     const auto out = layouts.getMainOutputChannelSet();
     return out == juce::AudioChannelSet::mono() || out == juce::AudioChannelSet::stereo();
 }
 
 //==============================================================================
-void WebTapAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void DawBridgeAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
 
@@ -60,22 +60,22 @@ void WebTapAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
 }
 
 //==============================================================================
-juce::AudioProcessorEditor* WebTapAudioProcessor::createEditor()
+juce::AudioProcessorEditor* DawBridgeAudioProcessor::createEditor()
 {
-    return new WebTapAudioProcessorEditor (*this);
+    return new DawBridgeAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void WebTapAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void DawBridgeAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    juce::ValueTree state ("WEBTAP_STATE");
+    juce::ValueTree state ("DAWBRIDGE_STATE");
     state.setProperty ("url", getSavedUrl(), nullptr);
 
     if (auto xml = state.createXml())
         copyXmlToBinary (*xml, destData);
 }
 
-void WebTapAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void DawBridgeAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     if (auto xml = getXmlFromBinary (data, sizeInBytes))
     {
@@ -85,18 +85,18 @@ void WebTapAudioProcessor::setStateInformation (const void* data, int sizeInByte
 }
 
 //==============================================================================
-void WebTapAudioProcessor::pushWebAudio (const float* interleaved, int numFrames, int numChannels)
+void DawBridgeAudioProcessor::pushWebAudio (const float* interleaved, int numFrames, int numChannels)
 {
     webAudioFifo.pushInterleaved (interleaved, numFrames, numChannels);
 }
 
-void WebTapAudioProcessor::pushWebMidi (const juce::MidiMessage& message)
+void DawBridgeAudioProcessor::pushWebMidi (const juce::MidiMessage& message)
 {
     const juce::ScopedLock sl (webToHostMidiLock);
     webToHostMidi.addEvent (message, 0);
 }
 
-std::vector<juce::MidiMessage> WebTapAudioProcessor::drainHostMidiForWeb()
+std::vector<juce::MidiMessage> DawBridgeAudioProcessor::drainHostMidiForWeb()
 {
     std::vector<juce::MidiMessage> result;
 
@@ -109,7 +109,7 @@ std::vector<juce::MidiMessage> WebTapAudioProcessor::drainHostMidiForWeb()
     return result;
 }
 
-WebTapAudioProcessor::TransportSnapshot WebTapAudioProcessor::getTransportSnapshot() const
+DawBridgeAudioProcessor::TransportSnapshot DawBridgeAudioProcessor::getTransportSnapshot() const
 {
     TransportSnapshot snapshot;
     snapshot.sampleRate = currentSampleRate;
@@ -128,13 +128,13 @@ WebTapAudioProcessor::TransportSnapshot WebTapAudioProcessor::getTransportSnapsh
     return snapshot;
 }
 
-juce::String WebTapAudioProcessor::getSavedUrl() const
+juce::String DawBridgeAudioProcessor::getSavedUrl() const
 {
     const juce::ScopedLock sl (savedUrlLock);
     return savedUrl;
 }
 
-void WebTapAudioProcessor::setSavedUrl (const juce::String& url)
+void DawBridgeAudioProcessor::setSavedUrl (const juce::String& url)
 {
     const juce::ScopedLock sl (savedUrlLock);
     savedUrl = url;
@@ -144,5 +144,5 @@ void WebTapAudioProcessor::setSavedUrl (const juce::String& url)
 // This creates new instances of the plugin.
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new WebTapAudioProcessor();
+    return new DawBridgeAudioProcessor();
 }

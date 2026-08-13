@@ -1,6 +1,6 @@
 # Architecture
 
-WebTap is a native VST3/AU plugin (built with JUCE) that embeds a browser and
+DawBridge is a native VST3/AU plugin (built with JUCE) that embeds a browser and
 bridges it into the host. It is **not** a web app by itself — a DAW only
 loads native plugin binaries, so the "web audio app" part only ever runs
 inside the native plugin's embedded `WebBrowserComponent`.
@@ -10,7 +10,7 @@ inside the native plugin's embedded `WebBrowserComponent`.
 │ DAW (Ableton / Logic / Reaper / ...)                                 │
 │                                                                       │
 │  ┌───────────────────────────────────────────────────────────────┐  │
-│  │ WebTap (VST3 / AU)                                             │  │
+│  │ DawBridge (VST3 / AU)                                             │  │
 │  │                                                                 │  │
 │  │  PluginProcessor (audio thread)                                │  │
 │  │    - WebAudioFifo: web page audio -> host output buffer        │  │
@@ -34,7 +34,7 @@ inside the native plugin's embedded `WebBrowserComponent`.
 │  │  │   - hijacks AudioNode.connect(destination)                  ││  │
 │  │  │   - AudioWorklet captures + ships PCM out                   ││  │
 │  │  │   - fakes navigator.requestMIDIAccess()                     ││  │
-│  │  │   - exposes window.WebTap.getTransport()                    ││  │
+│  │  │   - exposes window.DawBridge.getTransport()                    ││  │
 │  │  │             ▲                                                ││ │
 │  │  │             │ arbitrary web audio app (user-supplied URL,    ││ │
 │  │  │             │ or the bundled example_synth.html)             ││ │
@@ -54,7 +54,7 @@ Audio app. `bridge.js` intercepts exactly that call:
    the connection to a capture node instead (so nothing plays out of the
    host machine's own speakers — the DAW is the only listener that matters).
 2. The capture node is an `AudioWorkletNode` running a small processor
-   (`WebTapCaptureProcessor`, defined inline in `bridge.js` and loaded from a
+   (`DawBridgeCaptureProcessor`, defined inline in `bridge.js` and loaded from a
    `Blob` URL — no network fetch, so it works regardless of the page's
    origin). It buffers ~1024 frames (~23 ms at 44.1 kHz) before posting a
    message, to keep the message rate down.
@@ -63,7 +63,7 @@ Audio app. `bridge.js` intercepts exactly that call:
    `window.__JUCE__.backend.emitEvent("webAudioChunk", {...})`.
 4. `PluginEditor::handleWebAudioChunk` (registered via
    `WebBrowserComponent::Options::withEventListener`) decodes the base64 back
-   to floats and calls `WebTapAudioProcessor::pushWebAudio`, which writes into
+   to floats and calls `DawBridgeAudioProcessor::pushWebAudio`, which writes into
    a lock-free ring buffer (`WebAudioFifo`).
 5. `processBlock`, running on the real-time audio thread, pulls whatever is
    available from that ring buffer each block and mixes it into the host's
@@ -88,17 +88,17 @@ one.
   entirely — real Web MIDI permission prompts and OS MIDI devices are bypassed
   in favor of one synthetic input and one synthetic output representing "the
   host". Calling `.send(bytes)` on the synthetic output (or the convenience
-  `window.WebTap.sendMidi(bytes)`) emits a `webMidiOut` event, which
+  `window.DawBridge.sendMidi(bytes)`) emits a `webMidiOut` event, which
   `PluginEditor::handleWebMidiOut` turns into a `juce::MidiMessage` and queues
   it (`pushWebMidi`) for the next `processBlock` to emit to the host.
 
 ## Transport sync
 
 Every 1/30s, `PluginEditor` reads `AudioProcessor::getPlayHead()` (via
-`WebTapAudioProcessor::getTransportSnapshot`) and emits a `hostTransport`
+`DawBridgeAudioProcessor::getTransportSnapshot`) and emits a `hostTransport`
 event with BPM, playhead position (in quarter notes), and play/record state.
-`bridge.js` caches the latest value as `window.WebTap._transport` and fires a
-`webtaptransport` `CustomEvent` on `window` so pages can react to tempo or
+`bridge.js` caches the latest value as `window.DawBridge._transport` and fires a
+`dawbridgetransport` `CustomEvent` on `window` so pages can react to tempo or
 transport changes (the bundled example page uses this to show a play/BPM
 readout).
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(WebTap VERSION 0.1.0)
+project(DawBridge VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,17 +23,17 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(JUCE)
 
 if(APPLE)
-    set(WEBTAP_FORMATS VST3 AU Standalone)
+    set(DAWBRIDGE_FORMATS VST3 AU Standalone)
 else()
-    set(WEBTAP_FORMATS VST3 Standalone)
+    set(DAWBRIDGE_FORMATS VST3 Standalone)
 endif()
 
-juce_add_plugin(WebTap
-    COMPANY_NAME "WebTap"
-    PLUGIN_MANUFACTURER_CODE Wtpm
-    PLUGIN_CODE Wtp1
-    FORMATS ${WEBTAP_FORMATS}
-    PRODUCT_NAME "WebTap"
+juce_add_plugin(DawBridge
+    COMPANY_NAME "DawBridge"
+    PLUGIN_MANUFACTURER_CODE Dwbr
+    PLUGIN_CODE Dwb1
+    FORMATS ${DAWBRIDGE_FORMATS}
+    PRODUCT_NAME "DawBridge"
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     NEEDS_MIDI_OUTPUT TRUE
@@ -43,25 +43,25 @@ juce_add_plugin(WebTap
     NEEDS_WEBVIEW2 TRUE
     COPY_PLUGIN_AFTER_BUILD FALSE)
 
-juce_generate_juce_header(WebTap)
+juce_generate_juce_header(DawBridge)
 
 # The bridge script injected into every page the browser loads, and the
 # bundled example instrument page, are embedded into the binary so the built
 # plugin doesn't depend on the Resources folder being present at runtime.
-juce_add_binary_data(WebTapAssets
-    NAMESPACE WebTapAssets
-    HEADER_NAME WebTapAssets.h
+juce_add_binary_data(DawBridgeAssets
+    NAMESPACE DawBridgeAssets
+    HEADER_NAME DawBridgeAssets.h
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Resources/bridge.js
         ${CMAKE_CURRENT_SOURCE_DIR}/Resources/example_synth.html)
 
-target_sources(WebTap
+target_sources(DawBridge
     PRIVATE
         Source/PluginProcessor.cpp
         Source/PluginEditor.cpp
         Source/BridgeResources.cpp)
 
-target_compile_definitions(WebTap
+target_compile_definitions(DawBridge
     PUBLIC
         JUCE_WEB_BROWSER=1
         JUCE_USE_CURL=0
@@ -75,13 +75,13 @@ target_compile_definitions(WebTap
         # A no-op on non-Windows platforms.
         JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1)
 
-target_include_directories(WebTap
+target_include_directories(DawBridge
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/Source)
 
-target_link_libraries(WebTap
+target_link_libraries(DawBridge
     PRIVATE
-        WebTapAssets
+        DawBridgeAssets
         juce::juce_audio_utils
         juce::juce_audio_plugin_client
         juce::juce_gui_extra

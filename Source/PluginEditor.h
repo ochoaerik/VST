@@ -24,12 +24,12 @@ private:
 };
 
 //==============================================================================
-class WebTapAudioProcessorEditor : public juce::AudioProcessorEditor,
+class DawBridgeAudioProcessorEditor : public juce::AudioProcessorEditor,
                                     private juce::Timer
 {
 public:
-    explicit WebTapAudioProcessorEditor (WebTapAudioProcessor&);
-    ~WebTapAudioProcessorEditor() override;
+    explicit DawBridgeAudioProcessorEditor (DawBridgeAudioProcessor&);
+    ~DawBridgeAudioProcessorEditor() override;
 
     void resized() override;
 
@@ -40,7 +40,7 @@ private:
     void handleWebAudioChunk (const juce::var& payload);
     void handleWebMidiOut (const juce::var& payload);
 
-    WebTapAudioProcessor& processor;
+    DawBridgeAudioProcessor& processor;
 
     juce::Label urlBarLabel { {}, "Page:" };
     juce::TextEditor urlBar;
@@ -59,9 +59,9 @@ private:
             .withNativeIntegrationEnabled()
             .withEventListener ("webAudioChunk", [this] (juce::var payload) { handleWebAudioChunk (payload); })
             .withEventListener ("webMidiOut", [this] (juce::var payload) { handleWebMidiOut (payload); })
-            .withUserScript (WebTapResources::getBridgeScript())
-            .withResourceProvider ([] (const juce::String& url) { return WebTapResources::getExampleResource (url); })
+            .withUserScript (DawBridgeResources::getBridgeScript())
+            .withResourceProvider ([] (const juce::String& url) { return DawBridgeResources::getExampleResource (url); })
     };
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WebTapAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DawBridgeAudioProcessorEditor)
 };

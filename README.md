@@ -1,6 +1,6 @@
-# WebTap
+# DawBridge
 
-WebTap is a VST3/AU instrument plugin that embeds a browser inside your DAW and
+DawBridge is a VST3/AU instrument plugin that embeds a browser inside your DAW and
 bridges it into your session: it captures whatever a web page renders with the
 Web Audio API, feeds it into the host's audio stream, exchanges MIDI in both
 directions, and gives the page your host's tempo/transport so time-based web
@@ -19,8 +19,8 @@ plugins" — built with [JUCE](https://juce.com).
   `navigator.requestMIDIAccess()` device, and page → host goes out through the
   plugin as regular MIDI output.
 - Exposes host transport (BPM, playhead position in quarter notes,
-  play/record state) to the page as `window.WebTap.getTransport()` and a
-  `webtaptransport` window event.
+  play/record state) to the page as `window.DawBridge.getTransport()` and a
+  `dawbridgetransport` window event.
 - Remembers the last loaded URL in the plugin's saved state, so reopening a
   DAW project reloads the same page.
 
@@ -54,10 +54,10 @@ automatically via `FetchContent` — no manual JUCE install needed.
 
 ```sh
 cmake -B build
-cmake --build build --target WebTap_VST3 -j
+cmake --build build --target DawBridge_VST3 -j
 ```
 
-- **macOS**: also builds an AU (`WebTap_AU` target); needs Xcode command line
+- **macOS**: also builds an AU (`DawBridge_AU` target); needs Xcode command line
   tools.
 - **Windows**: needs the WebView2 backend (`NEEDS_WEBVIEW2` is already set in
   `CMakeLists.txt` — JUCE's CMake fetches the WebView2 SDK via NuGet
@@ -70,11 +70,11 @@ cmake --build build --target WebTap_VST3 -j
     libxrandr-dev libxrender-dev
   ```
 
-The built plugin is written under `build/WebTap_artefacts/`.
+The built plugin is written under `build/DawBridge_artefacts/`.
 
 ## Using it
 
-1. Load WebTap on an instrument track in your DAW.
+1. Load DawBridge on an instrument track in your DAW.
 2. On first run (before any URL has been saved into the plugin's state) it
    loads `https://daw.streetmoguldistro.com` by default. Type a different URL
    into the address bar and hit **Go** to switch pages, or click **Load
@@ -87,7 +87,7 @@ The default URL is set in `Source/PluginEditor.cpp` (`defaultAppUrl`).
 The bundled example (`Resources/example_synth.html`) is a small polyphonic
 Web Audio synth with an on-screen keyboard, computer-keyboard input, and a
 transport readout, meant to exercise every part of the bridge end to end. It
-also runs fine in a normal browser tab (outside WebTap) for quick iteration —
+also runs fine in a normal browser tab (outside DawBridge) for quick iteration —
 the bridge script no-ops when `window.__JUCE__` isn't present.
 
 ## Project layout

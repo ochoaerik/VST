@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>WebTap Example Synth</title>
+<title>DawBridge Example Synth</title>
 <style>
   :root {
     color-scheme: dark;
@@ -64,7 +64,7 @@
 <div class="app">
   <header>
     <div>
-      <h1>WebTap Example Synth</h1>
+      <h1>DawBridge Example Synth</h1>
       <p>A minimal Web Audio instrument used to exercise the audio / MIDI / transport bridge.</p>
     </div>
     <div id="transport"><span class="dot"></span><span id="transport-text">-- BPM, stopped</span></div>
@@ -94,7 +94,7 @@
   <footer>
     Play with the mouse/touch, your computer keyboard (<code>A</code>-<code>K</code> row), or a MIDI
     keyboard routed into the host track. Notes you play are also sent back out over
-    <code>WebTap.sendMidi()</code> so the host can record them.
+    <code>DawBridge.sendMidi()</code> so the host can record them.
   </footer>
 </div>
 
@@ -205,8 +205,8 @@
   }
 
   function sendMidiOut(status, note, velocity) {
-    if (window.WebTap && typeof window.WebTap.sendMidi === "function") {
-      window.WebTap.sendMidi([status, note, velocity]);
+    if (window.DawBridge && typeof window.DawBridge.sendMidi === "function") {
+      window.DawBridge.sendMidi([status, note, velocity]);
     }
   }
 
@@ -276,7 +276,7 @@
   });
 
   //==========================================================================
-  // Host MIDI in (via the Web MIDI API - real or WebTap's synthetic shim)
+  // Host MIDI in (via the Web MIDI API - real or DawBridge's synthetic shim)
   //==========================================================================
 
   if (navigator.requestMIDIAccess) {
@@ -306,12 +306,12 @@
     transportText.textContent = `${bpm} BPM, ${t.isPlaying ? "playing" : "stopped"}`;
   }
 
-  window.addEventListener("webtaptransport", (e) => renderTransport(e.detail));
+  window.addEventListener("dawbridgetransport", (e) => renderTransport(e.detail));
 
-  if (window.WebTap) {
-    renderTransport(window.WebTap.getTransport());
+  if (window.DawBridge) {
+    renderTransport(window.DawBridge.getTransport());
   } else {
-    transportText.textContent = "not running inside WebTap";
+    transportText.textContent = "not running inside DawBridge";
   }
 })();
 </script>

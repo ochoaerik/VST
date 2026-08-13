@@ -3,11 +3,11 @@
 namespace
 {
     // The page loaded on first run, before any URL has been saved into the
-    // plugin's state (see WebTapAudioProcessor::getSavedUrl/setSavedUrl).
+    // plugin's state (see DawBridgeAudioProcessor::getSavedUrl/setSavedUrl).
     const juce::String defaultAppUrl = "https://daw.streetmoguldistro.com";
 }
 
-WebTapAudioProcessorEditor::WebTapAudioProcessorEditor (WebTapAudioProcessor& p)
+DawBridgeAudioProcessorEditor::DawBridgeAudioProcessorEditor (DawBridgeAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     addAndMakeVisible (urlBarLabel);
@@ -48,13 +48,13 @@ WebTapAudioProcessorEditor::WebTapAudioProcessorEditor (WebTapAudioProcessor& p)
     startTimerHz (30);
 }
 
-WebTapAudioProcessorEditor::~WebTapAudioProcessorEditor()
+DawBridgeAudioProcessorEditor::~DawBridgeAudioProcessorEditor()
 {
     stopTimer();
 }
 
 //==============================================================================
-void WebTapAudioProcessorEditor::resized()
+void DawBridgeAudioProcessorEditor::resized()
 {
     auto bounds = getLocalBounds().reduced (8);
     auto topRow = bounds.removeFromTop (28);
@@ -74,7 +74,7 @@ void WebTapAudioProcessorEditor::resized()
 }
 
 //==============================================================================
-void WebTapAudioProcessorEditor::loadUrl (const juce::String& url)
+void DawBridgeAudioProcessorEditor::loadUrl (const juce::String& url)
 {
     if (url.isEmpty())
         return;
@@ -85,7 +85,7 @@ void WebTapAudioProcessorEditor::loadUrl (const juce::String& url)
 }
 
 //==============================================================================
-void WebTapAudioProcessorEditor::timerCallback()
+void DawBridgeAudioProcessorEditor::timerCallback()
 {
     const auto snapshot = processor.getTransportSnapshot();
 
@@ -113,7 +113,7 @@ void WebTapAudioProcessorEditor::timerCallback()
 }
 
 //==============================================================================
-void WebTapAudioProcessorEditor::handleWebAudioChunk (const juce::var& payload)
+void DawBridgeAudioProcessorEditor::handleWebAudioChunk (const juce::var& payload)
 {
     auto* obj = payload.getDynamicObject();
 
@@ -140,7 +140,7 @@ void WebTapAudioProcessorEditor::handleWebAudioChunk (const juce::var& payload)
     processor.pushWebAudio (static_cast<const float*> (decoded.getData()), numFrames, numChannels);
 }
 
-void WebTapAudioProcessorEditor::handleWebMidiOut (const juce::var& payload)
+void DawBridgeAudioProcessorEditor::handleWebMidiOut (const juce::var& payload)
 {
     auto* obj = payload.getDynamicObject();
 

@@ -5,9 +5,9 @@
 
 #include "WebAudioFifo.h"
 
-/** The DSP/host side of WebTap.
+/** The DSP/host side of DawBridge.
 
-    WebTap runs a page inside an embedded browser (see PluginEditor) and
+    DawBridge runs a page inside an embedded browser (see PluginEditor) and
     bridges it into the host as an instrument plugin:
 
       - audio the page renders is captured (via a JS/AudioWorklet shim
@@ -24,11 +24,11 @@
     (where the WebBrowserComponent callbacks run) concurrently with
     processBlock() running on the audio thread.
 */
-class WebTapAudioProcessor : public juce::AudioProcessor
+class DawBridgeAudioProcessor : public juce::AudioProcessor
 {
 public:
-    WebTapAudioProcessor();
-    ~WebTapAudioProcessor() override = default;
+    DawBridgeAudioProcessor();
+    ~DawBridgeAudioProcessor() override = default;
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -99,5 +99,5 @@ private:
 
     double currentSampleRate = 44100.0;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WebTapAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DawBridgeAudioProcessor)
 };
