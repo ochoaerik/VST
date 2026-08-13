@@ -23,9 +23,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(JUCE)
 
 if(APPLE)
-    set(WEBTAP_FORMATS VST3 AU)
+    set(WEBTAP_FORMATS VST3 AU Standalone)
 else()
-    set(WEBTAP_FORMATS VST3)
+    set(WEBTAP_FORMATS VST3 Standalone)
 endif()
 
 juce_add_plugin(WebTap
