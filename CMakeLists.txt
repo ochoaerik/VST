@@ -67,7 +67,13 @@ target_compile_definitions(WebTap
         JUCE_USE_CURL=0
         JUCE_VST3_CAN_REPLACE_VST2=0
         JUCE_DISPLAY_SPLASH_SCREEN=0
-        JUCE_STRICT_REFCOUNTEDPOINTER=1)
+        JUCE_STRICT_REFCOUNTEDPOINTER=1
+        # NEEDS_WEBVIEW2 (above) only makes CMake find/link the WebView2 SDK;
+        # this is the separate compile-time flag that actually switches
+        # WebBrowserComponent to the WebView2 backend on Windows (statically
+        # linked, so no WebView2Loader.dll needs to ship alongside the exe).
+        # A no-op on non-Windows platforms.
+        JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1)
 
 target_include_directories(WebTap
     PRIVATE
