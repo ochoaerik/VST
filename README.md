@@ -75,10 +75,14 @@ The built plugin is written under `build/WebTap_artefacts/`.
 ## Using it
 
 1. Load WebTap on an instrument track in your DAW.
-2. Type a URL into the address bar and hit **Go**, or click **Load Example
-   Synth** to try the bundled demo instrument.
+2. On first run (before any URL has been saved into the plugin's state) it
+   loads `https://daw.streetmoguldistro.com` by default. Type a different URL
+   into the address bar and hit **Go** to switch pages, or click **Load
+   Example Synth** to try the bundled demo instrument instead.
 3. Play the track's MIDI as usual — notes reach the page, and audio the page
    renders comes back out through the plugin.
+
+The default URL is set in `Source/PluginEditor.cpp` (`defaultAppUrl`).
 
 The bundled example (`Resources/example_synth.html`) is a small polyphonic
 Web Audio synth with an on-screen keyboard, computer-keyboard input, and a

@@ -1,5 +1,12 @@
 #include "PluginEditor.h"
 
+namespace
+{
+    // The page loaded on first run, before any URL has been saved into the
+    // plugin's state (see WebTapAudioProcessor::getSavedUrl/setSavedUrl).
+    const juce::String defaultAppUrl = "https://daw.streetmoguldistro.com";
+}
+
 WebTapAudioProcessorEditor::WebTapAudioProcessorEditor (WebTapAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
@@ -32,7 +39,7 @@ WebTapAudioProcessorEditor::WebTapAudioProcessorEditor (WebTapAudioProcessor& p)
     addAndMakeVisible (webView);
 
     const auto savedUrl = processor.getSavedUrl();
-    loadUrl (savedUrl.isNotEmpty() ? savedUrl : juce::WebBrowserComponent::getResourceProviderRoot());
+    loadUrl (savedUrl.isNotEmpty() ? savedUrl : defaultAppUrl);
 
     setResizable (true, true);
     setResizeLimits (480, 360, 3840, 2160);
