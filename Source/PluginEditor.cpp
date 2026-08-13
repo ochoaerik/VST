@@ -19,8 +19,8 @@ DawBridgeAudioProcessorEditor::DawBridgeAudioProcessorEditor (DawBridgeAudioProc
     addAndMakeVisible (goButton);
     goButton.onClick = [this] { loadUrl (urlBar.getText()); };
 
-    addAndMakeVisible (exampleButton);
-    exampleButton.onClick = [this] { loadUrl (juce::WebBrowserComponent::getResourceProviderRoot()); };
+    addAndMakeVisible (homeButton);
+    homeButton.onClick = [this] { loadUrl (defaultAppUrl); };
 
     addAndMakeVisible (statusLabel);
     statusLabel.setJustificationType (juce::Justification::centredRight);
@@ -62,7 +62,7 @@ void DawBridgeAudioProcessorEditor::resized()
     urlBarLabel.setBounds (topRow.removeFromLeft (40));
     goButton.setBounds (topRow.removeFromRight (60));
     topRow.removeFromRight (4);
-    exampleButton.setBounds (topRow.removeFromRight (140));
+    homeButton.setBounds (topRow.removeFromRight (70));
     topRow.removeFromRight (4);
     urlBar.setBounds (topRow);
 

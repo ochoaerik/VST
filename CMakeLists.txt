@@ -47,15 +47,14 @@ juce_add_plugin(DawBridge
 
 juce_generate_juce_header(DawBridge)
 
-# The bridge script injected into every page the browser loads, and the
-# bundled example instrument page, are embedded into the binary so the built
-# plugin doesn't depend on the Resources folder being present at runtime.
+# The bridge script injected into every page the browser loads is embedded
+# into the binary so the built plugin doesn't depend on the Resources folder
+# being present at runtime.
 juce_add_binary_data(DawBridgeAssets
     NAMESPACE DawBridgeAssets
     HEADER_NAME DawBridgeAssets.h
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/Resources/bridge.js
-        ${CMAKE_CURRENT_SOURCE_DIR}/Resources/example_synth.html)
+        ${CMAKE_CURRENT_SOURCE_DIR}/Resources/bridge.js)
 
 target_sources(DawBridge
     PRIVATE

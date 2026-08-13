@@ -45,7 +45,7 @@ private:
     juce::Label urlBarLabel { {}, "Page:" };
     juce::TextEditor urlBar;
     juce::TextButton goButton { "Go" };
-    juce::TextButton exampleButton { "Load Example Synth" };
+    juce::TextButton homeButton { "Home" };
     juce::Label statusLabel;
 
     BridgedWebView webView
@@ -60,7 +60,6 @@ private:
             .withEventListener ("webAudioChunk", [this] (juce::var payload) { handleWebAudioChunk (payload); })
             .withEventListener ("webMidiOut", [this] (juce::var payload) { handleWebMidiOut (payload); })
             .withUserScript (DawBridgeResources::getBridgeScript())
-            .withResourceProvider ([] (const juce::String& url) { return DawBridgeResources::getExampleResource (url); })
     };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DawBridgeAudioProcessorEditor)

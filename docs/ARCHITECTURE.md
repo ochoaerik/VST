@@ -37,7 +37,7 @@ inside the native plugin's embedded `WebBrowserComponent`.
 │  │  │   - exposes window.DawBridge.getTransport()                    ││  │
 │  │  │             ▲                                                ││ │
 │  │  │             │ arbitrary web audio app (user-supplied URL,    ││ │
-│  │  │             │ or the bundled example_synth.html)             ││ │
+│  │  │             │ defaults to daw.streetmoguldistro.com)         ││ │
 │  │  └───────────────────────────────────────────────────────────┘│  │
 │  └───────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘

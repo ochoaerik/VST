@@ -10,8 +10,9 @@ plugins" — built with [JUCE](https://juce.com).
 
 ## What it does today
 
-- Loads any URL (or a bundled example synth) into an embedded browser inside
-  the plugin window.
+- Loads any URL into an embedded browser inside the plugin window —
+  `daw.streetmoguldistro.com` by default, with a **Home** button to jump back
+  to it.
 - Captures audio the page connects to its `AudioContext` destination and mixes
   it into the host's output, instead of letting it play out of the machine's
   speakers.
@@ -59,9 +60,13 @@ cmake --build build --target DawBridge_VST3 -j
 
 - **macOS**: also builds an AU (`DawBridge_AU` target); needs Xcode command line
   tools.
-- **Windows**: needs the WebView2 backend (`NEEDS_WEBVIEW2` is already set in
-  `CMakeLists.txt` — JUCE's CMake fetches the WebView2 SDK via NuGet
-  automatically).
+- **Windows**: needs the WebView2 backend. `NEEDS_WEBVIEW2` in `CMakeLists.txt`
+  makes CMake *find* the WebView2 SDK, but you need to install it into your
+  local NuGet package cache first — from PowerShell:
+  ```powershell
+  Register-PackageSource -provider NuGet -name nugetRepository -location https://www.nuget.org/api/v2
+  Install-Package Microsoft.Web.WebView2 -Scope CurrentUser -RequiredVersion 1.0.1901.177 -Source nugetRepository
+  ```
 - **Linux**: needs WebKitGTK + GTK3 dev headers, e.g. on Debian/Ubuntu:
   ```sh
   sudo apt install libwebkit2gtk-4.1-dev libgtk-3-dev libasound2-dev \
@@ -75,20 +80,15 @@ The built plugin is written under `build/DawBridge_artefacts/`.
 ## Using it
 
 1. Load DawBridge on an instrument track in your DAW.
-2. On first run (before any URL has been saved into the plugin's state) it
-   loads `https://daw.streetmoguldistro.com` by default. Type a different URL
-   into the address bar and hit **Go** to switch pages, or click **Load
-   Example Synth** to try the bundled demo instrument instead.
+2. It loads `https://daw.streetmoguldistro.com` on first run (before any URL
+   has been saved into the plugin's state). Type a different URL into the
+   address bar and hit **Go** to switch pages, or click **Home** to jump back
+   to the default page at any time.
 3. Play the track's MIDI as usual — notes reach the page, and audio the page
    renders comes back out through the plugin.
 
-The default URL is set in `Source/PluginEditor.cpp` (`defaultAppUrl`).
-
-The bundled example (`Resources/example_synth.html`) is a small polyphonic
-Web Audio synth with an on-screen keyboard, computer-keyboard input, and a
-transport readout, meant to exercise every part of the bridge end to end. It
-also runs fine in a normal browser tab (outside DawBridge) for quick iteration —
-the bridge script no-ops when `window.__JUCE__` isn't present.
+The default URL (and what **Home** navigates to) is set in
+`Source/PluginEditor.cpp` (`defaultAppUrl`).
 
 ## Project layout
 
@@ -98,10 +98,10 @@ Source/
   PluginProcessor.{h,cpp}   AudioProcessor: audio/MIDI FIFOs, transport, state
   PluginEditor.{h,cpp}      AudioProcessorEditor: embedded WebBrowserComponent
   WebAudioFifo.h            Lock-free ring buffer, browser thread -> audio thread
-  BridgeResources.{h,cpp}   Access to the embedded bridge script / example page
+  BridgeResources.{h,cpp}   Access to the embedded bridge script
 Resources/
   bridge.js                 Injected into every loaded page (capture + MIDI + transport)
-  example_synth.html        Bundled demo instrument
+  icon.png                  App/plugin icon
 docs/
   ARCHITECTURE.md           How the pieces fit together, message formats, tradeoffs
 ```
