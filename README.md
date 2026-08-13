@@ -84,7 +84,10 @@ The built plugin is written under `build/DawBridge_artefacts/`.
    has been saved into the plugin's state). Type a different URL into the
    address bar and hit **Go** to switch pages, or click **Home** to jump back
    to the default page at any time.
-3. Play the track's MIDI as usual — notes reach the page, and audio the page
+3. Click **Maximize** to hide the address bar entirely and let the page fill
+   the whole window. Hover near the top edge to bring back a floating
+   **Restore** button.
+4. Play the track's MIDI as usual — notes reach the page, and audio the page
    renders comes back out through the plugin.
 
 The default URL (and what **Home** navigates to) is set in

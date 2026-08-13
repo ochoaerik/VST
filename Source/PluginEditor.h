@@ -37,6 +37,7 @@ private:
     void timerCallback() override;
     void loadUrl (const juce::String& url);
     void setChromeVisible (bool shouldBeVisible);
+    void updateRestoreOverlayVisibility();
 
     void handleWebAudioChunk (const juce::var& payload);
     void handleWebMidiOut (const juce::var& payload);
@@ -49,8 +50,40 @@ private:
     juce::TextEditor urlBar;
     juce::TextButton goButton { "Go" };
     juce::TextButton homeButton { "Home" };
-    juce::TextButton chromeToggleButton { "Maximize" };
+    juce::TextButton maximizeButton { "Maximize" };
     juce::Label statusLabel;
+
+    /** A small always-on-top, borderless top-level window holding just the
+        Restore button. Shown only while the mouse hovers near the top edge
+        of the editor when maximized.
+
+        This has to be a *separate OS window* rather than an ordinary child
+        component: WebBrowserComponent is backed by a native windowed
+        control on every platform (WebKitGTK/WKWebView/WebView2), and native
+        child windows always paint above JUCE-drawn siblings in the same
+        parent regardless of component z-order. When maximized, webView
+        covers the entire editor, so nothing added as a normal child of this
+        editor could ever be layered visibly on top of it. A distinct
+        always-on-top desktop window sidesteps that by operating at the OS
+        window-manager level instead. */
+    struct RestoreOverlay : public juce::Component
+    {
+        RestoreOverlay()
+        {
+            addAndMakeVisible (restoreButton);
+            setSize (90, 26);
+            setAlwaysOnTop (true);
+            setOpaque (true);
+        }
+
+        void paint (juce::Graphics& g) override { g.fillAll (juce::Colours::black); }
+        void resized() override { restoreButton.setBounds (getLocalBounds()); }
+
+        juce::TextButton restoreButton { "Restore" };
+    };
+
+    RestoreOverlay restoreOverlay;
+    bool restoreOverlayShown = false;
 
     BridgedWebView webView
     {
