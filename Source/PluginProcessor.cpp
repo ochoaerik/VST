@@ -114,9 +114,9 @@ WebTapAudioProcessor::TransportSnapshot WebTapAudioProcessor::getTransportSnapsh
     TransportSnapshot snapshot;
     snapshot.sampleRate = currentSampleRate;
 
-    if (auto* playHead = getPlayHead())
+    if (auto* currentPlayHead = getPlayHead())
     {
-        if (auto position = playHead->getPosition())
+        if (auto position = currentPlayHead->getPosition())
         {
             snapshot.bpm = position->getBpm().orFallback (120.0);
             snapshot.ppqPosition = position->getPpqPosition().orFallback (0.0);
